@@ -2,6 +2,7 @@
   (interactive)
   (setq moreLines t)
   (setq filename "merge-result")
+  (setq towrite "")
   ;; (append-to-file "teststring" nil filename)
   (goto-char 1)
   (re-search-forward "^\\(.*?\\) \\[\\(.*?\\)\\] /(m) \\(.*?\\)/")
@@ -22,14 +23,21 @@
 	      (setq cur-roma (concat cur-roma " " next-roma))
 	      ))
       ;; diffent kanji
-      (append-to-file (concat cur-kanj " [" cur-read "] /(m) " cur-roma "/\n")
-		      nil filename)  ;; write to file
+      (setq towrite (concat towrite cur-kanj " [" cur-read "] /(m) "
+			    cur-roma "/\n"))
+      (if (> (length towrite) 10000)
+	  (progn
+	    (append-to-file towrite nil filename)
+	    (setq towrite "")
+	    ))
+	    ;;nil filename)  ;; write to file
       (setq cur-kanj next-kanj)  ;; get new entry to compare 
       (setq cur-read next-read)
       (setq cur-roma next-roma)
       )
     (setq moreLines (= 0 (forward-line 1)))
     )
+  (append-to-file towrite nil filename)
   (append-to-file (concat cur-kanj " [" cur-read "] /(m) " cur-roma "/\n")
 		  nil filename)  ;; write to file
   )
