@@ -22,6 +22,7 @@ no_proxy = True
 
 def get_proxies():
     global proxies
+    print("Getting New Proxies")
     # Retrieve latest proxies
     proxies_req = Request('https://www.sslproxies.org/')
     proxies_req.add_header('User-Agent', ua.random)
@@ -36,7 +37,7 @@ def get_proxies():
             'ip':   row.find_all('td')[0].string,
             'port': row.find_all('td')[1].string
         })
-    proxies = proxies[:75]  # trim it to allow no proxy more often
+    proxies = proxies[:100]  # trim it to allow no proxy more often
     print("Got new proxies")
 
 
@@ -65,11 +66,11 @@ def get_proxy(entry, proxy_index):
     url = ("https://search.yahoo.co.jp/search?p="
            + urllib.parse.quote(entry, encoding="utf-8"))
     req = Request(url)
-    # req.add_header('User-Agent', ua.random)
+    req.add_header('User-Agent', ua.random)
     req.set_proxy(proxy['ip'] + ':' + proxy['port'], 'http')
     # Make the call
     try:
-        html = urlopen(req).read().decode('utf8')
+        html = urlopen(req, timeout=30).read().decode('utf8')
         return(html)
     except:  # If error, delete this proxy and find another one
         return(-1)
@@ -82,8 +83,8 @@ def soup(html):
     count = re.search(r'^.*約(.*)件', ba[0].text).group(1)
     count = count.replace(',', '')
     # print(count)
-    return(count)
     # print(soup.prettify())
+    return(count)
 
 
 if __name__ == "__main__":
@@ -95,15 +96,14 @@ if __name__ == "__main__":
     proxy_index = random_proxy()
     first_scan = True
     for line in input_file:
+        entry = re.search(r'^(.*?) .*$', line).group(1)
         if first_scan:
-            entry = re.search(r'^(.*?) .*$', line).group(1)
             check_output = output.readline()
             if re.search(r'^'+entry, check_output):
                 # already searched
                 # print("Already searched " + entry)
                 # print(line[:-1] + " -- " + "0")
                 continue
-                pass
             else:
                 first_scan = False
         # Found entries that were not searched yet
@@ -132,4 +132,5 @@ if __name__ == "__main__":
         output.write(line[:-1] + " -- " + count + "\n")
         output.close()
         output = open(output_name, 'a')
+        count = "AAA"
     output.close()
