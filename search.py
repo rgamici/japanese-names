@@ -24,9 +24,16 @@ def get_proxies():
     global proxies
     print("Getting New Proxies")
     # Retrieve latest proxies
-    proxies_req = Request('https://www.sslproxies.org/')
-    proxies_req.add_header('User-Agent', ua.random)
-    proxies_doc = urlopen(proxies_req).read().decode('utf8')
+    try_proxy = True
+    while try_proxy:
+        try:
+            proxies_req = Request('https://www.sslproxies.org/')
+            proxies_req.add_header('User-Agent', ua.random)
+            proxies_doc = urlopen(proxies_req).read().decode('utf8')
+            try_proxy = False
+        except:
+            print("Failed to get proxies, trying again in 5 minutes")
+            time.sleep(5)
 
     soup = BeautifulSoup(proxies_doc, 'html.parser')
     proxies_table = soup.find(id='proxylisttable')
@@ -37,7 +44,7 @@ def get_proxies():
             'ip':   row.find_all('td')[0].string,
             'port': row.find_all('td')[1].string
         })
-    proxies = proxies[:100]  # trim it to allow no proxy more often
+    proxies = proxies[:75]  # trim it to allow no proxy more often
     print("Got new proxies")
 
 
@@ -106,6 +113,7 @@ if __name__ == "__main__":
                 continue
             else:
                 first_scan = False
+                print(entry)
         # Found entries that were not searched yet
         # print(str(entry) + " - " + str(line))
         while True:
