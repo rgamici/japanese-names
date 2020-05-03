@@ -12,8 +12,8 @@ from bs4 import BeautifulSoup
 
 # Local Vars
 
-input_name = "input-count"
-output_name = "marked"
+input_name = "male-count"
+output_name = "male-finished"
 dict_name = "edict2"
 
 
@@ -40,7 +40,7 @@ def prepare_dict():
 
 if __name__ == "__main__":
     input_file = open(input_name, 'r')
-    output = open(output_name, 'r+')
+    output = open(output_name, 'w')
     words = prepare_dict()
     count = 0
     for line in input_file:
